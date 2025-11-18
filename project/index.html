@@ -1,70 +1,84 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>AI Chat</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ikyy AI</title>
   <style>
-    body { background:#0c0c14; font-family:sans-serif; color:#fff; margin:0; }
-    .wrap { max-width:900px; margin:20px auto; padding:20px; }
-    #messages { height:450px; overflow-y:auto; background:#14141f; padding:15px; border-radius:10px; }
-    .msg { padding:10px; margin:8px 0; border-radius:8px; max-width:75%; }
-    .user { background:#242439; margin-left:auto; }
-    .bot { background:#1a1a26; }
-    .row { display:flex; gap:10px; margin-top:15px; }
-    textarea { flex:1; padding:10px; border-radius:10px; background:#0f0f18; color:#fff; border:none; resize:none; }
-    button { padding:10px 14px; border-radius:10px; border:none; font-weight:bold; background:#6d4bff; color:#fff; cursor:pointer; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0e0e0e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    .chatbox {
+      width: 100%;
+      max-width: 600px;
+      background: #1b1b1b;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 80px;
+      border-radius: 8px;
+      padding: 10px;
+      background: #111;
+      color: white;
+      border: none;
+      resize: none;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #4f46e5;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #4338ca; }
+    .response {
+      margin-top: 20px;
+      padding: 15px;
+      background: #222;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>AI Chat</h1>
-    <div id="messages"></div>
+  <h1>Ikyy AI 🤖</h1>
 
-    <div class="row">
-      <textarea id="input" placeholder="Ketik pesan..."></textarea>
-      <button onclick="send()">Send</button>
-    </div>
+  <div class="chatbox">
+    <textarea id="prompt" placeholder="Tanya apa aja ke AI..."></textarea>
+    <button onclick="askAI()">Kirim</button>
+
+    <div id="result" class="response"></div>
   </div>
 
-<script>
-const API_BASE = "/api/chat";
+  <!-- AXIOS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-function add(role, text){
-  const el = document.getElementById("messages");
-  const div = document.createElement("div");
-  div.className = "msg " + role;
-  div.innerText = text;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
-}
+  <script>
+    async function askAI() {
+      const prompt = document.getElementById("prompt").value;
+      const resultBox = document.getElementById("result");
+      resultBox.textContent = "Loading...";
 
-async function send(){
-  const text = document.getElementById("input").value.trim();
-  if(!text) return;
-  add("user", text);
-  document.getElementById("input").value = ""
-
-  add("bot", "Thinking...")
-
-  try {
-    const r = await fetch(API_BASE, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        messages: [
-          { role:"user", content:text }
-        ]
-      })
-    });
-
-    const data = await r.json();
-    document.querySelectorAll(".bot").pop().remove();
-
-    add("bot", data.choices?.[0]?.message?.content || "error");
-  } catch(err){
-    add("bot", "Network error: " + err);
-  }
-}
-</script>
+      try {
+        const res = await axios.post("/api/chat", { prompt });
+        resultBox.textContent = res.data.reply;
+      } catch (err) {
+        resultBox.textContent = "Error: " + err.message;
+      }
+    }
+  </script>
 </body>
 </html>
