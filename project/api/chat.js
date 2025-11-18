@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     if (!messages)
       return res.status(400).json({ error: "messages missing" });
 
-    const key = process.env.OPENAI_API_KEY;
+    const key = process.env.apikeyOpenAi;
     if (!key) return res.status(500).json({ error: "No API key in env" });
 
     const r = await axios.post(
